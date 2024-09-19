@@ -11,7 +11,8 @@ const func = (curr: string) => {
 
 export const Header = () => {
   const [data, setData] = useState<{
-    [key: string]: CurrencyApiResponse | null;
+    USD: CurrencyApiResponse | null;
+    EUR: CurrencyApiResponse | null;
   }>({
     USD: null,
     EUR: null,

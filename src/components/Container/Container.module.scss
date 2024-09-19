@@ -2,3 +2,22 @@
   width: 60%;
   margin: 10% auto;
 }
+
+@media (max-width: 992px) {
+  .container {
+    width: 80%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: 90%;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    width: 100%;
+    margin: 10% 10px;
+  }
+}
