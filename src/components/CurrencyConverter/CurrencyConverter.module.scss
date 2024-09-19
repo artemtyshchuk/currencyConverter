@@ -102,7 +102,6 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 @media (hover: hover) {
-  
   .inputSelect:hover {
     border: 1px solid white;
     transition: 0.3s;
@@ -115,7 +114,6 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 @media (hover: none) {
-
   .inputSelect:not(:hover) {
     border: 1px solid #3a3a3c;
   }
@@ -126,14 +124,12 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 @media (max-width: 1439px) {
-
   .inputContainer {
     grid-template-columns: 80% 20%;
   }
 }
 
 @media (max-width: 1200px) {
-
   .title {
     font-size: 20px;
   }
@@ -144,14 +140,12 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 @media (max-width: 768px) {
-
   .inputContainer {
     grid-template-columns: 70% 30%;
   }
 }
 
 @media (max-width: 576px) {
-
   .inputContainer {
     grid-template-columns: 60% 40%;
   }
