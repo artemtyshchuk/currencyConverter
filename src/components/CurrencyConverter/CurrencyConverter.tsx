@@ -1,36 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "./CurrencyConverter.module.scss";
-
-const apiKey = process.env.REACT_APP_EXCHANGE_API_KEY;
+import { InputComponent } from "./InputComponent";
+import { useFetchCurrencyConverterData } from "hooks/useFetchCurrencyConverterData";
 
 export const CurrencyConverter = () => {
   const [amountFrom, setAmountFrom] = useState<string>("");
   const [amountTo, setAmountTo] = useState<string>("");
   const [fromCurrency, setFromCurrency] = useState<string>("USD");
   const [toCurrency, setToCurrency] = useState<string>("UAH");
-  const [defaultCurrency] = useState<string>("USD");
-  const [data, setData] = useState<{
-    [key: string]: number;
-  }>({});
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch(
-        `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${defaultCurrency}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
-      const dataJson = await response.json();
-      setData(dataJson.conversion_rates);
-    } catch (error) {
-      console.log("Error fetching data:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data, defaultCurrency } = useFetchCurrencyConverterData();
 
   const calculateConversion = (
     value: number,
@@ -47,65 +26,43 @@ export const CurrencyConverter = () => {
     }
   };
 
-  const handleAmountFromChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+  const handleAmountChange = (
+    value: string,
+    fromCurrency: string,
+    toCurrency: string,
+    setAmount: React.Dispatch<React.SetStateAction<string>>,
+    setOtherAmount: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    const value = event.target.value;
-    setAmountFrom(value);
-    if (parseFloat(value) === 0 || isNaN(parseFloat(value))) {
-      setAmountTo("");
+    setAmount(value);
+    const parsedValue = parseFloat(value);
+    if (parsedValue === 0 || isNaN(parsedValue)) {
+      setOtherAmount("");
     } else {
       const convertedValue = calculateConversion(
-        parseFloat(value),
+        parsedValue,
         fromCurrency,
         toCurrency
       );
-      setAmountTo(convertedValue.toFixed(2));
+      setOtherAmount(convertedValue.toFixed(2));
     }
   };
 
-  const handleAmountToChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setAmountTo(value);
-    if (parseFloat(value) === 0 || isNaN(parseFloat(value))) {
-      setAmountFrom("");
-    } else {
-      const convertedValue = calculateConversion(
-        parseFloat(value),
-        toCurrency,
-        fromCurrency
-      );
-      setAmountFrom(convertedValue.toFixed(2));
-    }
-  };
-
-  const handleFromCurrencyChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+  const handleCurrencyChange = (
+    newCurrency: string,
+    currentAmount: string,
+    fromCurrency: string,
+    toCurrency: string,
+    setCurrency: React.Dispatch<React.SetStateAction<string>>,
+    setOtherAmount: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    const newCurrency = event.target.value;
-    setFromCurrency(newCurrency);
-    if (amountFrom) {
+    setCurrency(newCurrency);
+    if (currentAmount) {
       const newConvertedValue = calculateConversion(
-        parseFloat(amountFrom),
-        newCurrency,
+        parseFloat(currentAmount),
+        fromCurrency,
         toCurrency
       ).toFixed(2);
-      setAmountTo(newConvertedValue);
-    }
-  };
-
-  const handleToCurrencyChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const newCurrency = event.target.value;
-    setToCurrency(newCurrency);
-    if (amountFrom) {
-      const newConvertedValue = calculateConversion(
-        parseFloat(amountFrom),
-        fromCurrency,
-        newCurrency
-      ).toFixed(2);
-      setAmountTo(newConvertedValue);
+      setOtherAmount(newConvertedValue);
     }
   };
 
@@ -125,41 +82,55 @@ export const CurrencyConverter = () => {
       <span className={styles.divider}></span>
       <div className={styles.currencyConverterBodyContainer}>
         <label className={styles.inputContainer}>
-          <input
-            type="text"
-            value={amountFrom}
-            onChange={handleAmountFromChange}
-            placeholder="0"
-            className={styles.input}
+          <InputComponent
+            amount={amountFrom}
+            currency={fromCurrency}
+            handleAmountChange={(e) =>
+              handleAmountChange(
+                e.target.value,
+                fromCurrency,
+                toCurrency,
+                setAmountFrom,
+                setAmountTo
+              )
+            }
+            handleCurrencyChange={(e) =>
+              handleCurrencyChange(
+                e.target.value,
+                amountFrom,
+                e.target.value,
+                toCurrency,
+                setFromCurrency,
+                setAmountTo
+              )
+            }
           />
-          <select
-            value={fromCurrency}
-            className={styles.inputSelect}
-            onChange={handleFromCurrencyChange}
-          >
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="UAH">UAH</option>
-          </select>
         </label>
 
         <label className={styles.inputContainer}>
-          <input
-            type="text"
-            value={amountTo}
-            onChange={handleAmountToChange}
-            placeholder="0"
-            className={styles.input}
+          <InputComponent
+            amount={amountTo}
+            currency={toCurrency}
+            handleAmountChange={(e) =>
+              handleAmountChange(
+                e.target.value,
+                toCurrency,
+                fromCurrency,
+                setAmountTo,
+                setAmountFrom
+              )
+            }
+            handleCurrencyChange={(e) =>
+              handleCurrencyChange(
+                e.target.value,
+                amountFrom,
+                fromCurrency,
+                e.target.value,
+                setToCurrency,
+                setAmountTo
+              )
+            }
           />
-          <select
-            value={toCurrency}
-            className={styles.inputSelect}
-            onChange={handleToCurrencyChange}
-          >
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="UAH">UAH</option>
-          </select>
         </label>
       </div>
     </div>
